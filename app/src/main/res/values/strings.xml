@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">SmartDictionary</string>
+    <string name="local_tips">请输入你想查找的单词</string>
+    <string name="inline_tips">请输入你想搜索的单词</string>
+    <string name="search">查询</string>
+    <string name="local_search">本地查找</string>
+    <string name="inline_search">在线搜索</string>
+    <string name="translation">译：</string>
+    <string name="result">查询结果</string>
+</resources>
