@@ -19,7 +19,7 @@ import java.util.List;
 public class DataBaseAccess {
 
     public static final String DB_Name = "LocalDictionary.db";//数据库文件名称
-    private static final int VERSION = 1;//数据库版本
+    private static final int VERSION = 2;//数据库版本
     private static DataBaseAccess mDataBaseAccess = null;
     private static SQLiteDatabase mSQLiteDatabase = null;//数据库管理类
     private static List<Word> mListWord = null; // 一个保存数据的集合
@@ -132,5 +132,34 @@ public class DataBaseAccess {
         LogUtiles.i("loadWordData ---> success");
         cursor.close();
         return mListWord;
+    }
+
+    /**
+     * 用于查询数据库里的某一条匹配记录，并返回
+     * format: SELECT * FROM loci_video.oci_cartoon_detai WHERE vid="20IP2FvuqK0";
+     * @param query
+     * @return Word
+     */
+    public static Word query(String tableName, String query){
+//        StringBuilder cammand = new StringBuilder();
+//        cammand.append("SELECT * FROM ").append("LocalDictionary.Dictionary ")
+//                .append("WHERE ").append(DictionarySQLiteOpenHelper.FIELD_QUERY).append("=")
+//                .append(query);
+        Cursor cursor = mSQLiteDatabase.query(tableName, DICTIONARY_COLUMNS,
+                DictionarySQLiteOpenHelper.FIELD_QUERY+"=?", new String[]{query}, null, null, null);
+        Word word = null;
+        if (cursor.moveToFirst()){
+            do {
+                word = new Word();
+                word.setTranslation(cursor.getString(DICTIONARY_Column_Index.translation));
+                word.setQuery(cursor.getString(DICTIONARY_Column_Index.query));
+                word.setUs_phonetic(cursor.getString(DICTIONARY_Column_Index.us_phonetic));
+                word.setPhonetic(cursor.getString(DICTIONARY_Column_Index.phonetic));
+                word.setUk_phonetic(cursor.getString(DICTIONARY_Column_Index.uk_phonetic));
+                word.setExplains(cursor.getString(DICTIONARY_Column_Index.explains));
+                word.setWeb(cursor.getString(DICTIONARY_Column_Index.web));
+            }while (cursor.moveToNext());
+        }
+        return word;
     }
 }

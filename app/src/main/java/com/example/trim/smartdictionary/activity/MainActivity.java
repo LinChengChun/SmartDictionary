@@ -127,17 +127,14 @@ public class MainActivity extends BaseActivity implements RecyclerViewAdapter.On
         if (position == ControlView.LOCAL_SEARCH){
             mInlineSearchFragment.onStop();
             mLocalSearchFragment.onStart();
-
             transaction.hide(mInlineSearchFragment);
             transaction.show(mLocalSearchFragment);
-            transaction.commit();
         }else if (position == ControlView.INLINE_SEARCH){
             mLocalSearchFragment.onStop();
             mInlineSearchFragment.onStart();
-
             transaction.hide(mLocalSearchFragment);
             transaction.show(mInlineSearchFragment);
-            transaction.commit();
         }
+        transaction.commit();
     }
 }

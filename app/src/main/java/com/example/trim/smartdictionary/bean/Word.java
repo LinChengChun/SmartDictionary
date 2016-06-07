@@ -70,4 +70,24 @@ public class Word {
     public void setWeb(String web) {
         this.web = web;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n译："+translation).append("\n")
+                .append("美式发音："+us_phonetic).append("\n")
+                .append("中式发音："+phonetic).append("\n")
+                .append("英式发音："+uk_phonetic).append("\n\n")
+                .append("基本词典：").append("\n");
+
+        builder.append(explains);
+        builder.append("\n网络释义：").append("\n");
+        builder.append(web);
+//        String[] explain = explains.split("")
+//            builder.append(temp1).append("\n");
+//        builder.append("\n网络释义：").append("\n");
+//        for (String temp2: webExplains)
+//            builder.append(temp2).append("\n");
+        return builder.toString();
+    }
 }

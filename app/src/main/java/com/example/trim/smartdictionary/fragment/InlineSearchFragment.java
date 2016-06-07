@@ -36,7 +36,8 @@ public class InlineSearchFragment extends Fragment implements View.OnClickListen
     private HttpHandler mHttpHandler = null; //xUtils 的库的
     private Context mContext = null; // 上下文
 
-    private Detail searchResult = null;
+    private Detail searchResult = null; // 用来存储查询结果的对象
+    private static Boolean isDataBaseUpdate = false; // 用来标记数据库是否更新的标记位
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,8 +107,13 @@ public class InlineSearchFragment extends Fragment implements View.OnClickListen
                             builder.append(searchResult.webExplains.get(i));
                             builder.append("\n");
                         }
+                        word.setWeb(builder.toString());
 
+                        LogUtiles.i("Line[111] isDataBaseUpdate = "+isDataBaseUpdate);
+                        if (!isDataBaseUpdate) // 假如目前状态是 没有更新，即更新状态
+                            isDataBaseUpdate = true;
                         BaseActivity.mDataBaseAccess.saveWordData(word, DictionarySQLiteOpenHelper.TableName);
+                        LogUtiles.i("Line[113] isDataBaseUpdate = "+isDataBaseUpdate);
                     }
 
                     @Override
@@ -120,5 +126,21 @@ public class InlineSearchFragment extends Fragment implements View.OnClickListen
                         LogUtiles.i("onStart...");
                     }
                 });
+    }
+
+
+    public static Boolean getDataBaseUpdate() {
+        return isDataBaseUpdate;
+    }
+
+    public static void setDataBaseUpdate(Boolean dataBaseUpdate) {
+        isDataBaseUpdate = dataBaseUpdate;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mHttpHandler!=null)
+            mHttpHandler.cancel();
     }
 }
