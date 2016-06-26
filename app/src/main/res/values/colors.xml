@@ -6,4 +6,7 @@
 
     <color name="colorClickDown">#ffff00</color>
     <color name="colorClickUp">#999999</color>
+
+    <color name="list_item_selected">#33FFFFFF</color>
+    <color name="transparent">#00000000</color>
 </resources>

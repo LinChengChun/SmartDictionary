@@ -1,7 +1,8 @@
 package com.example.trim.smartdictionary.activity;
 
-import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -32,7 +33,7 @@ public class MainActivity extends BaseActivity implements RecyclerViewAdapter.On
     private List<String> mList = null; // 数据集合
     private RecyclerViewAdapter adapter = null;
 
-    private android.app.FragmentManager manager = null;
+    private FragmentManager manager = null;
     private ControlView mControlView = null; // 自定义View 用于切换不同模式
 
     @Override
@@ -95,7 +96,7 @@ public class MainActivity extends BaseActivity implements RecyclerViewAdapter.On
 //
 //        mRecyclerView.setAdapter(adapter);
 
-        manager = this.getFragmentManager();
+        manager = this.getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.add(R.id.container, mLocalSearchFragment);
         transaction.add(R.id.container, mInlineSearchFragment);
