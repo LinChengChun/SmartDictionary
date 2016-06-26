@@ -23,11 +23,17 @@
             android:id="@+id/btn_InlineSearch"/>
     </LinearLayout>
 
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/tv_InlineSearchResult"
-        android:textSize="@dimen/dimen_18sp"
-        android:textColor="@android:color/black"
-        android:hint="@string/result" />
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:fillViewport="false">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_InlineSearchResult"
+            android:textSize="@dimen/dimen_18sp"
+            android:textColor="@android:color/black"
+            android:hint="@string/result" />
+    </ScrollView>
 </LinearLayout>
