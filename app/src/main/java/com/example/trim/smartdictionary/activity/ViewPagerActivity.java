@@ -3,6 +3,7 @@ package com.example.trim.smartdictionary.activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.widget.TextView;
 
 import com.example.trim.smartdictionary.R;
@@ -18,7 +19,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/6/26.
  */
-public class ViewPagerActivity extends BaseActivity {
+public class ViewPagerActivity extends BaseActivity implements View.OnClickListener{
 
     private ViewPager mViewPager = null; // 定义一个ViewPager控件
     private ViewPagerAdapter adapter = null; // ViewPager适配器
@@ -40,27 +41,40 @@ public class ViewPagerActivity extends BaseActivity {
         mLocalSearchTextView = retrieveView(R.id.idLocalSearch);
         mInlineSearchTextView = retrieveView(R.id.idInlineSearch);
 
-        mLocalSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
-        mInlineSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
+//        mLocalSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
+//        mInlineSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
+        mLocalSearchTextView.setAlpha(0.3f);
+        mInlineSearchTextView.setAlpha(0.3f);
     }
 
     @Override
     protected void initListener() {
+        mLocalSearchTextView.setOnClickListener(this);
+        mInlineSearchTextView.setOnClickListener(this);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+                switch (position){
+                    case 0:
+                        mLocalSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
+                        mInlineSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
+                        break;
+                    case 1:
+                        mInlineSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
+                        mLocalSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
+                        break;
+                }
             }
 
             @Override
             public void onPageSelected(int position) {
                 if (position==0){
-                    mLocalSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
-                    mInlineSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
+//                    mLocalSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
+//                    mInlineSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
                     mLocalSearchFragment.onStart();
                 }else {
-                    mInlineSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
-                    mLocalSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
+//                    mInlineSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
+//                    mLocalSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
 //                    mInlineSearchTextView.onStart();
                 }
             }
@@ -93,4 +107,15 @@ public class ViewPagerActivity extends BaseActivity {
         mViewPager.setAdapter(adapter);
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.idInlineSearch:
+                mViewPager.setCurrentItem(1);
+                break;
+            case R.id.idLocalSearch:
+                mViewPager.setCurrentItem(0);
+                break;
+        }
+    }
 }
