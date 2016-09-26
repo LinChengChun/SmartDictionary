@@ -5,8 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/SmartDictionary.iml" filepath="$PROJECT_DIR$/SmartDictionary.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/nicespinner/nicespinner.iml" filepath="$PROJECT_DIR$/nicespinner/nicespinner.iml" />
-      <module fileurl="file://$PROJECT_DIR$/viewpagerdictionary/viewpagerdictionary.iml" filepath="$PROJECT_DIR$/viewpagerdictionary/viewpagerdictionary.iml" />
-      <module fileurl="file://$PROJECT_DIR$/viewpagerdictionary/viewpagerdictionary.iml" filepath="$PROJECT_DIR$/viewpagerdictionary/viewpagerdictionary.iml" />
     </modules>
   </component>
 </project>

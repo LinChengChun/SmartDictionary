@@ -51,7 +51,10 @@ public class AutoCompleteTextViewAdapter extends AppBaseAdapter<String> implemen
         return convertView;
     }
 
-    class ViewHolder{
+    /**
+     * 用于缓存 View id
+     */
+    static class ViewHolder{
         TextView textView;
     }
 
