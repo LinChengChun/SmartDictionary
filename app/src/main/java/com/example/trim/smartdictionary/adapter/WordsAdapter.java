@@ -49,8 +49,8 @@ public class WordsAdapter extends AppBaseAdapter<WordInfo>{
     /**
      * 用于ListView优化，缓存组件
      */
-    static class ViewHolder{
-        TextView tvName;
+    public static class ViewHolder{
+        public TextView tvName;
         TextView tvExplain;
     }
 

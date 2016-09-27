@@ -5,7 +5,7 @@
     <string name="search">查询</string>
     <string name="local_search">本地查找</string>
     <string name="inline_search">在线搜索</string>
-    <string name="db_search">数据库搜索</string>
+    <string name="db_search">本地搜索</string>
     <string name="translation">译：</string>
     <string name="result">查询结果</string>
 </resources>

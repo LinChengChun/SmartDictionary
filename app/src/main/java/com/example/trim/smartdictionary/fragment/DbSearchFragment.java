@@ -2,21 +2,26 @@ package com.example.trim.smartdictionary.fragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import com.example.trim.smartdictionary.R;
+import com.example.trim.smartdictionary.activity.DetailInfoActivity;
 import com.example.trim.smartdictionary.adapter.WordsAdapter;
 import com.example.trim.smartdictionary.bean.WordInfo;
 import com.example.trim.smartdictionary.utils.LogUtiles;
@@ -28,13 +33,13 @@ import java.util.List;
  * Created by cclin on 2016/9/26.
  */
 
-public class DbSearchFragment extends Fragment implements View.OnClickListener{
+public class DbSearchFragment extends Fragment implements View.OnClickListener, TextWatcher, AdapterView.OnItemClickListener {
 
     private static String path = "data/data/com.example.trim.smartdictionary/files/font.ttf";
     private View mDbSearchFragment = null; // 定义一个视图组件
     private Activity mActivity; // 上下文
-    private EditText etInput;
-    private Button btnSearch;
+    private EditText etInput; // 文本输入控件，需要查询的单词
+    private Button btnSearch; // 查询按键
     private ListView lvDatabaseInfo;
     private List<WordInfo> mWordInfos;
     private List<WordInfo> mSearchResultWordInfos;
@@ -52,12 +57,13 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener{
             mActivity = this.getActivity();
             imm = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE); // 获取系统输入法服务
             mWordInfos = new ArrayList<WordInfo>(); // 初始化集合
-            mSearchResultWordInfos = new ArrayList<WordInfo>(); // 初始化集合
-            adapter = new WordsAdapter(mActivity, mSearchResultWordInfos);// 实例化适配器
+//            mSearchResultWordInfos = new ArrayList<WordInfo>(); // 初始化集合
+            adapter = new WordsAdapter(mActivity, mWordInfos);// 实例化适配器
             lvDatabaseInfo.setAdapter(adapter);
-            loadWordInfoFromDB();
-
+//            loadWordInfoFromDB();
+            etInput.addTextChangedListener(this);
             btnSearch.setOnClickListener(this);
+            lvDatabaseInfo.setOnItemClickListener(this);
         }
         return mDbSearchFragment;
     }
@@ -183,7 +189,7 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener{
                     input = "a";
                 }
                 hideSoftInputMethod();
-                searchWordInfoFromRam(input);
+                searchWordInfoFromDB(input); // 从数据库中查询
                 break;
         }
     }
@@ -202,5 +208,35 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener{
     private String getMainWord(String text){
         String result = text.substring(text.indexOf("<font color=red >")+17  ,text.indexOf("</font>"));
         return result;
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        String input = s.toString();
+        searchWordInfoFromDB(input); // 从数据库中查询
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        WordInfo wordInfo = mWordInfos.get(position);
+
+        enterDetailInfoActivity(wordInfo, view); // 启动跳转进入详细单词信息页面
+    }
+
+    private void enterDetailInfoActivity(WordInfo wordInfo, View view){
+        Intent intent = new Intent(mActivity, DetailInfoActivity.class);
+        intent.putExtra("word", ((WordsAdapter.ViewHolder)view.getTag()).tvName.getText());
+        intent.putExtra("wordInfo", wordInfo);
+        mActivity.startActivity(intent);
     }
 }

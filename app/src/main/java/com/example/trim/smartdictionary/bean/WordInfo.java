@@ -1,11 +1,13 @@
 package com.example.trim.smartdictionary.bean;
 
+import java.io.Serializable;
+
 /**
  * 用于存储某一个单词的所有信息
  * Created by cclin on 2016/9/26.
  */
 
-public class WordInfo {
+public class WordInfo implements Serializable{
 
     private String symbol; // 音标
     private String explain; // 含义

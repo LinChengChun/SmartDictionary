@@ -48,5 +48,6 @@ public abstract class AppBaseAdapter<T> extends BaseAdapter {
 
     public void notifyDataChange(List<T> list){
         this.mList = list;
+        notifyDataSetChanged();
     }
 }
