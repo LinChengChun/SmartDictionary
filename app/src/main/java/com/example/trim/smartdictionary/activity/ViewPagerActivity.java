@@ -31,6 +31,7 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
     private Detail searchResult = null; // 查询结果保存到这个对象中
     private TextView mLocalSearchTextView = null;
     private TextView mInlineSearchTextView = null;
+    private TextView mDatabaseSearchTextView = null;
 
     @Override
     protected int initLayout() {
@@ -42,17 +43,20 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
         mViewPager = retrieveView(R.id.idViewPager);
         mLocalSearchTextView = retrieveView(R.id.idLocalSearch);
         mInlineSearchTextView = retrieveView(R.id.idInlineSearch);
+        mDatabaseSearchTextView = retrieveView(R.id.idDatabaseSearch);
 
 //        mLocalSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
 //        mInlineSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
         mLocalSearchTextView.setAlpha(0.3f);
         mInlineSearchTextView.setAlpha(0.3f);
+        mDatabaseSearchTextView.setAlpha(0.3f);
     }
 
     @Override
     protected void initListener() {
         mLocalSearchTextView.setOnClickListener(this);
         mInlineSearchTextView.setOnClickListener(this);
+        mDatabaseSearchTextView.setOnClickListener(this);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -60,10 +64,17 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
                     case 0:
                         mLocalSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
                         mInlineSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
+                        mDatabaseSearchTextView.setAlpha(  0.3f );
                         break;
                     case 1:
+                        mLocalSearchTextView.setAlpha(  0.3f );
                         mInlineSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
-                        mLocalSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
+                        mDatabaseSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
+                        break;
+                    case 2:
+                        mLocalSearchTextView.setAlpha(  0.3f );
+                        mInlineSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
+                        mDatabaseSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
                         break;
                 }
             }
@@ -120,6 +131,9 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
                 break;
             case R.id.idLocalSearch:
                 mViewPager.setCurrentItem(0);
+                break;
+            case R.id.idDatabaseSearch:
+                mViewPager.setCurrentItem(2);
                 break;
         }
     }

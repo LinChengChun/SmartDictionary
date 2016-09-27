@@ -40,7 +40,8 @@ public class WordsAdapter extends AppBaseAdapter<WordInfo>{
         }
 
         WordInfo wordInfo = wordInfos.get(position); // 获取当前位置的单词信息
-        viewHolder.tvName.setText(wordInfo.getSymbol());
+        viewHolder.tvName.setText(getMainWord(wordInfo.getSent())+"  ["+wordInfo.getSymbol()+"]");
+//        viewHolder.tvName.setText(Html.fromHtml()); // 利用html方式形式显示
         viewHolder.tvExplain.setText(wordInfo.getExplain());
         return convertView;
     }
@@ -51,5 +52,10 @@ public class WordsAdapter extends AppBaseAdapter<WordInfo>{
     static class ViewHolder{
         TextView tvName;
         TextView tvExplain;
+    }
+
+    private String getMainWord(String text){
+        String result = text.substring(text.indexOf("<font color=red >")+17  ,text.indexOf("</font>"));
+        return result;
     }
 }

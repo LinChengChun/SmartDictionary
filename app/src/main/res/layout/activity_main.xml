@@ -64,6 +64,18 @@
             android:background="@color/transparent"
             android:id="@+id/idInlineSearch"/>
 
+        <TextView
+            android:layout_width="@dimen/dimen_0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@android:color/black"
+            android:text="@string/db_search"
+            android:background="@color/transparent"
+            android:id="@+id/idDatabaseSearch"/>
+
     </LinearLayout>
     <android.support.v4.view.ViewPager
         android:layout_width="match_parent"
