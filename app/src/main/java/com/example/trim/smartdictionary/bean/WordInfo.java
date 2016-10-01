@@ -9,10 +9,19 @@ import java.io.Serializable;
 
 public class WordInfo implements Serializable{
 
+    private String word; // 单词
     private String symbol; // 音标
     private String explain; // 含义
     private String audio; // 播放读音链接
     private String sent; // 例句
+
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
 
     public String getSymbol() {
         return symbol;

@@ -1,19 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/bg4">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/dimen_5dp">
-        <TextView
-            android:text="TextView"
-            android:textColor="#000000"
-            android:textSize="@dimen/dimen_22sp"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/tv_detail_info" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:text="单词：hello"
+                android:textColor="#000000"
+                android:textSize="@dimen/dimen_28sp"
+                android:layout_margin="@dimen/dimen_5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_search" />
+            <TextView
+                android:text="音标：*%￥"
+                android:textColor="#000000"
+                android:textSize="@dimen/dimen_22sp"
+                android:layout_margin="@dimen/dimen_5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_symbol" />
+
+            <TextView
+                android:text="解释：你好"
+                android:textColor="#000000"
+                android:textSize="@dimen/dimen_22sp"
+                android:layout_margin="@dimen/dimen_5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_explain" />
+
+            <TextView
+                android:text="例句：hello world"
+                android:textColor="#000000"
+                android:textSize="@dimen/dimen_22sp"
+                android:layout_margin="@dimen/dimen_5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_sent" />
+        </LinearLayout>
     </ScrollView>
 
 </LinearLayout>

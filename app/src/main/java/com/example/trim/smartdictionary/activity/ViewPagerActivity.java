@@ -1,6 +1,7 @@
 package com.example.trim.smartdictionary.activity;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -13,6 +14,7 @@ import com.example.trim.smartdictionary.bean.Detail;
 import com.example.trim.smartdictionary.fragment.DbSearchFragment;
 import com.example.trim.smartdictionary.fragment.InlineSearchFragment;
 import com.example.trim.smartdictionary.fragment.LocalSearchFragment;
+import com.example.trim.smartdictionary.utils.PromptManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,7 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
     private TextView mLocalSearchTextView = null;
     private TextView mInlineSearchTextView = null;
     private TextView mDatabaseSearchTextView = null;
+    private long[] mHits = new long[2];
 
     @Override
     protected int initLayout() {
@@ -135,6 +138,17 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
             case R.id.idDatabaseSearch:
                 mViewPager.setCurrentItem(2);
                 break;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        System.arraycopy(mHits, 1, mHits, 0, mHits.length-1);
+        mHits[mHits.length-1] = SystemClock.uptimeMillis();
+        if (mHits[0] >= (SystemClock.uptimeMillis()-1500)) {
+            super.onBackPressed();
+        }else {
+            PromptManager.showShortToast(this, "再按一次，退出应用");
         }
     }
 }

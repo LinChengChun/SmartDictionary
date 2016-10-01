@@ -125,5 +125,4 @@ public abstract class BaseActivity extends FragmentActivity {
     protected void initData() {
 
     }
-
 }

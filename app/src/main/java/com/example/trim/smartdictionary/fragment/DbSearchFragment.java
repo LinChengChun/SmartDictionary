@@ -24,6 +24,7 @@ import com.example.trim.smartdictionary.R;
 import com.example.trim.smartdictionary.activity.DetailInfoActivity;
 import com.example.trim.smartdictionary.adapter.WordsAdapter;
 import com.example.trim.smartdictionary.bean.WordInfo;
+import com.example.trim.smartdictionary.utils.CommonUtils;
 import com.example.trim.smartdictionary.utils.LogUtiles;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import java.util.List;
  * Created by cclin on 2016/9/26.
  */
 
-public class DbSearchFragment extends Fragment implements View.OnClickListener, TextWatcher, AdapterView.OnItemClickListener {
+public class DbSearchFragment extends Fragment implements View.OnClickListener, TextWatcher, AdapterView.OnItemClickListener, Runnable {
 
     private static String path = "data/data/com.example.trim.smartdictionary/files/font.ttf";
     private View mDbSearchFragment = null; // 定义一个视图组件
@@ -44,7 +45,11 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
     private List<WordInfo> mWordInfos;
     private List<WordInfo> mSearchResultWordInfos;
     private WordsAdapter adapter;
-    private InputMethodManager imm;
+    private InputMethodManager imm; // 输入法管理器
+
+    private String inputText; // 获取输入的文本
+    private String[] searchs; // 单词数组
+    private Thread searchThread; // 搜索线程
 
     @Nullable
     @Override
@@ -57,59 +62,18 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
             mActivity = this.getActivity();
             imm = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE); // 获取系统输入法服务
             mWordInfos = new ArrayList<WordInfo>(); // 初始化集合
-//            mSearchResultWordInfos = new ArrayList<WordInfo>(); // 初始化集合
             adapter = new WordsAdapter(mActivity, mWordInfos);// 实例化适配器
-            lvDatabaseInfo.setAdapter(adapter);
-//            loadWordInfoFromDB();
+            lvDatabaseInfo.setAdapter(adapter); // 设置适配器
+
             etInput.addTextChangedListener(this);
             btnSearch.setOnClickListener(this);
             lvDatabaseInfo.setOnItemClickListener(this);
+
+            searchs = CommonUtils.getStringArray(R.array.search); // 从资源文件中读取到内存
+
+            LogUtiles.d("searchs length = "+searchs.length);
         }
         return mDbSearchFragment;
-    }
-
-    /**
-     * 从数据库中加载数据
-     */
-    private void loadWordInfoFromDB(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                if (!mWordInfos.isEmpty()) mWordInfos.clear(); // 情况集合
-                SQLiteDatabase database = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
-//                Cursor cursor = database.rawQuery("select * from dict where sent like '%<font color=red >"+"b"+"%';", null);
-                Cursor cursor = database.rawQuery("select * from dict", null);
-                while (cursor.moveToNext()){
-
-                    String symbol = cursor.getString(/*cursor.getColumnIndex("symbol")*/ 0);
-                    String explain = cursor.getString(/*cursor.getColumnIndex("explain")*/ 1);
-                    String audio = cursor.getString(/*cursor.getColumnIndex("audio")*/ 2);
-                    String sent = cursor.getString(/*cursor.getColumnIndex("sent")*/ 3);
-
-//                    LogUtiles.i("symbol = "+symbol);
-//                    LogUtiles.i("explain = "+explain);
-//                    LogUtiles.i("audio = "+audio);
-//                    LogUtiles.i("sent = "+sent);
-
-                    WordInfo wordInfo = new WordInfo();
-                    wordInfo.setSymbol(symbol);
-                    wordInfo.setExplain(explain);
-                    wordInfo.setAudio(audio);
-                    wordInfo.setSent(sent);
-
-                    mWordInfos.add(wordInfo);
-                }
-                cursor.close();
-                database.close();
-
-//                mActivity.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                    adapter.notifyDataChange(mWordInfos);
-//                    }
-//                });
-            }
-        }).start();
     }
 
     private synchronized void searchWordInfoFromDB(final String input){
@@ -154,30 +118,54 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         }).start();
     }
 
-    private synchronized void searchWordInfoFromRam(final String input){
-        new Thread(new Runnable() {
+    /**
+     * 根据数组里边的坐标从数据库导入每一条记录的数据
+     * @param input
+     */
+    private synchronized void loadWordInfoFromDB(String input){
+        if (TextUtils.isEmpty(input)) // 如果输入为空那么不进行数据库查询
+            input = "a";
+        if (!mWordInfos.isEmpty()) mWordInfos.clear(); // 清空集合
+        long startTime = System.currentTimeMillis();
+        LogUtiles.i("loadWordInfoFromDB start,input = "+input);
+
+        SQLiteDatabase database = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
+        Cursor cursor = database.rawQuery("select * from dict", null);
+
+        for (int i = 0; i<searchs.length; i++){
+            if ( searchs[i].charAt(0) < input.charAt(0) )
+                continue;
+            if ( searchs[i].charAt(0) > input.charAt(0) ) // 比较第一个字符的大小，只匹配第一字符相同的单词
+                break; // 跳出扫描
+            if ( searchs[i].startsWith(input) ){
+                cursor.moveToPosition(i); // 移动光标到某一行
+                String symbol = cursor.getString(/*cursor.getColumnIndex("symbol")*/ 0);
+                String explain = cursor.getString(/*cursor.getColumnIndex("explain")*/ 1);
+                String audio = cursor.getString(/*cursor.getColumnIndex("audio")*/ 2);
+                String sent = cursor.getString(/*cursor.getColumnIndex("sent")*/ 3);
+
+                WordInfo wordInfo = new WordInfo();
+                wordInfo.setWord(searchs[i]);
+                wordInfo.setSymbol(symbol);
+                wordInfo.setExplain(explain);
+                wordInfo.setAudio(audio);
+                wordInfo.setSent(sent);
+
+                mWordInfos.add(wordInfo); // 把查询结果添加到集合中
+            }
+        }
+        cursor.close();
+        database.close();
+        LogUtiles.i("loadWordInfoFromDB end");
+        long endTime = System.currentTimeMillis();
+        long diff = endTime - startTime; // 计算时间差值
+        LogUtiles.d("spend "+ diff+" ms");
+        mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                LogUtiles.i("searchWordInfoFromRam start,input = "+input);
-                if (!mSearchResultWordInfos.isEmpty()) mSearchResultWordInfos.clear(); // 清空集合
-
-                for (WordInfo wordInfo : mWordInfos){
-                    LogUtiles.i(wordInfo.getSent());
-                    if ((wordInfo.getSent().length()>20) && getMainWord(wordInfo.getSent()).contains(input)){
-                        LogUtiles.i("get it success");
-                        mSearchResultWordInfos.add(wordInfo);
-                    }
-                }
-                LogUtiles.i("searchWordInfoFromRam end");
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        adapter.notifyDataChange(mSearchResultWordInfos);
-                    }
-                });
+                adapter.notifyDataChange(mWordInfos);
             }
-        }).start();
+        });
     }
 
     @Override
@@ -189,7 +177,7 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
                     input = "a";
                 }
                 hideSoftInputMethod();
-                searchWordInfoFromDB(input); // 从数据库中查询
+                loadWordInfoFromDB(input); // 从数据库中查询
                 break;
         }
     }
@@ -205,11 +193,6 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0); //强制隐藏键盘
     }
 
-    private String getMainWord(String text){
-        String result = text.substring(text.indexOf("<font color=red >")+17  ,text.indexOf("</font>"));
-        return result;
-    }
-
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -222,21 +205,43 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
 
     @Override
     public void afterTextChanged(Editable s) {
-        String input = s.toString();
-        searchWordInfoFromDB(input); // 从数据库中查询
+        inputText = s.toString().toLowerCase();
+        if (searchThread == null) {
+            searchThread = new Thread(this);
+            searchThread.start(); // 启动搜索线程
+        }
+        if (!searchThread.isInterrupted())
+            searchThread.interrupt(); // 如果线程还没停止，应该中断
+        searchThread.run();
     }
 
+    /**
+     * 列表点击事件
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         WordInfo wordInfo = mWordInfos.get(position);
-
         enterDetailInfoActivity(wordInfo, view); // 启动跳转进入详细单词信息页面
     }
 
+    /**
+     * 进入单词详细信息页面
+     * @param wordInfo
+     * @param view
+     */
     private void enterDetailInfoActivity(WordInfo wordInfo, View view){
         Intent intent = new Intent(mActivity, DetailInfoActivity.class);
         intent.putExtra("word", ((WordsAdapter.ViewHolder)view.getTag()).tvName.getText());
         intent.putExtra("wordInfo", wordInfo);
         mActivity.startActivity(intent);
+    }
+
+    @Override
+    public void run() {
+        loadWordInfoFromDB(inputText); // 从数据库中查询单词
     }
 }

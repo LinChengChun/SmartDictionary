@@ -30,9 +30,9 @@ public class WordsAdapter extends AppBaseAdapter<WordInfo>{
     public View getItemView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null){
-            convertView = View.inflate(mContext, R.layout.list_item_word, null);
-            viewHolder = new ViewHolder();
-            viewHolder.tvName = (TextView) convertView.findViewById(R.id.tv_name);
+            convertView = View.inflate(mContext, R.layout.list_item_word, null); // 根据布局id构造View
+            viewHolder = new ViewHolder(); // 创建一个缓存类实例
+            viewHolder.tvName = (TextView) convertView.findViewById(R.id.tv_name); // 根据id索引视图，并保存到缓存中
             viewHolder.tvExplain = (TextView) convertView.findViewById(R.id.tv_explain);
             convertView.setTag(viewHolder);
         }else {
@@ -40,8 +40,8 @@ public class WordsAdapter extends AppBaseAdapter<WordInfo>{
         }
 
         WordInfo wordInfo = wordInfos.get(position); // 获取当前位置的单词信息
-        viewHolder.tvName.setText(getMainWord(wordInfo.getSent())+"  ["+wordInfo.getSymbol()+"]");
-//        viewHolder.tvName.setText(Html.fromHtml()); // 利用html方式形式显示
+//        viewHolder.tvName.setText(getMainWord(wordInfo.getSent())+"  ["+wordInfo.getSymbol()+"]");
+        viewHolder.tvName.setText(wordInfo.getWord());
         viewHolder.tvExplain.setText(wordInfo.getExplain());
         return convertView;
     }
