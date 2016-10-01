@@ -33,9 +33,9 @@ public class SplashActivity extends BaseActivity{
                 long endTime = System.currentTimeMillis();
                 long diff = endTime - startTime; // 计算时间差值
 
-                if (diff < 2000) {
+                if (diff < 1000) {
                     try {
-                        Thread.sleep(2000 - diff);
+                        Thread.sleep(1000 - diff);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

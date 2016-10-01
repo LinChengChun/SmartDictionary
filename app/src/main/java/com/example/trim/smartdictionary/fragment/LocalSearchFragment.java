@@ -88,14 +88,19 @@ public class LocalSearchFragment extends Fragment implements View.OnClickListene
         LogUtiles.i("onStart...");
         LogUtiles.i("Line[78] isDataBaseUpdate = "+InlineSearchFragment.getDataBaseUpdate());
         if ( isFirstLoad ||InlineSearchFragment.getDataBaseUpdate()) { // 假如是第一次加载，或者数据库有更新，那么重新加载数据库里面的数据到集合
-            mListWord = DataBaseAccess.loadWordData(DictionarySQLiteOpenHelper.TableName); // load data from DataBase
-            mListData.clear(); // 清空集合
-            for (int i = 0; i < mListWord.size(); i++) {
-                mListData.add(mListWord.get(i).getQuery());
-            }
-            adapter.setmOriginalValues(mListData);
-            isFirstLoad = false; // 取消第一次进入标志
-            InlineSearchFragment.setDataBaseUpdate(false); // 取消数据库更新标志位
+            new Thread(new Runnable() {
+                @Override
+                public synchronized void run() {
+                    mListWord = DataBaseAccess.loadWordData(DictionarySQLiteOpenHelper.TableName); // load data from DataBase
+                    mListData.clear(); // 清空集合
+                    for (int i = 0; i < mListWord.size(); i++) {
+                        mListData.add(mListWord.get(i).getQuery());
+                    }
+                    adapter.setmOriginalValues(mListData);
+                    isFirstLoad = false; // 取消第一次进入标志
+                    InlineSearchFragment.setDataBaseUpdate(false); // 取消数据库更新标志位
+                }
+            }).start();
         }
         LogUtiles.i("Line[89] isDataBaseUpdate = "+InlineSearchFragment.getDataBaseUpdate());
     }

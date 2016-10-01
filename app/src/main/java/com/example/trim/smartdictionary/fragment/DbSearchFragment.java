@@ -76,6 +76,11 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         return mDbSearchFragment;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
     private synchronized void searchWordInfoFromDB(final String input){
         new Thread(new Runnable() {
             @Override
@@ -205,14 +210,17 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
 
     @Override
     public void afterTextChanged(Editable s) {
-        inputText = s.toString().toLowerCase();
-        if (searchThread == null) {
-            searchThread = new Thread(this);
-            searchThread.start(); // 启动搜索线程
+        if (this.isResumed()) {
+            inputText = s.toString().toLowerCase();
+            if (searchThread == null) {
+                searchThread = new Thread(this);
+                searchThread.start(); // 启动搜索线程
+                return;
+            }
+            if (!searchThread.isInterrupted())
+                searchThread.interrupt(); // 如果线程还没停止，应该中断
+            searchThread.run();
         }
-        if (!searchThread.isInterrupted())
-            searchThread.interrupt(); // 如果线程还没停止，应该中断
-        searchThread.run();
     }
 
     /**

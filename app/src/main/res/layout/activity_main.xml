@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@drawable/welcome_bg"
+    android:background="@drawable/bg4"
     tools:context=".activity.MainActivity">
 
     <android.support.v7.widget.RecyclerView
@@ -40,6 +40,7 @@
         android:weightSum="3"
         android:layout_marginBottom="@dimen/dimen_5dp"
         android:orientation="horizontal">
+
         <TextView
             android:layout_width="@dimen/dimen_0dp"
             android:layout_height="match_parent"
@@ -47,10 +48,10 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="@string/local_search"
             android:textColor="@android:color/black"
+            android:text="@string/db_search"
             android:background="@color/transparent"
-            android:id="@+id/idLocalSearch"/>
+            android:id="@+id/idDatabaseSearch"/>
 
         <TextView
             android:layout_width="@dimen/dimen_0dp"
@@ -71,10 +72,10 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/local_search"
             android:textColor="@android:color/black"
-            android:text="@string/db_search"
             android:background="@color/transparent"
-            android:id="@+id/idDatabaseSearch"/>
+            android:id="@+id/idLocalSearch"/>
 
     </LinearLayout>
     <android.support.v4.view.ViewPager

@@ -65,19 +65,19 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 switch (position){
                     case 0:
-                        mLocalSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
+                        mDatabaseSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
                         mInlineSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
-                        mDatabaseSearchTextView.setAlpha(  0.3f );
+                        mLocalSearchTextView.setAlpha(  0.3f );
                         break;
                     case 1:
-                        mLocalSearchTextView.setAlpha(  0.3f );
+                        mDatabaseSearchTextView.setAlpha(  0.3f );
                         mInlineSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
-                        mDatabaseSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
+                        mLocalSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
                         break;
                     case 2:
-                        mLocalSearchTextView.setAlpha(  0.3f );
+                        mDatabaseSearchTextView.setAlpha(  0.3f );
                         mInlineSearchTextView.setAlpha( (positionOffset>0.3f)? positionOffset: 0.3f );
-                        mDatabaseSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
+                        mLocalSearchTextView.setAlpha( (1-positionOffset>0.3f)? 1-positionOffset: 0.3f );
                         break;
                 }
             }
@@ -85,13 +85,9 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
             @Override
             public void onPageSelected(int position) {
                 if (position==0){
-//                    mLocalSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
-//                    mInlineSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
-                    mLocalSearchFragment.onStart();
+                    mDbSearchFragment.onStart();
                 }else {
-//                    mInlineSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
-//                    mLocalSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
-//                    mInlineSearchTextView.onStart();
+
                 }
             }
 
@@ -108,9 +104,9 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
         mLocalSearchFragment = new LocalSearchFragment();
         mInlineSearchFragment = new InlineSearchFragment();
         mDbSearchFragment = new DbSearchFragment();
-        mListFragment.add(mLocalSearchFragment); // 把Fragment添加到集合中
-        mListFragment.add(mInlineSearchFragment);
         mListFragment.add(mDbSearchFragment);
+        mListFragment.add(mInlineSearchFragment);
+        mListFragment.add(mLocalSearchFragment); // 把Fragment添加到集合中
 
         searchResult = new Detail(); // 实例化查询结果对象
         searchResult.webExplains = new ArrayList<String>();
@@ -120,7 +116,7 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
         bundle.putSerializable("searchResult", searchResult);
         mLocalSearchFragment.setArguments(bundle); // activity 传递参数到 fragment
         mInlineSearchFragment.setArguments(bundle); // activity 传递参数到 fragment
-        mDbSearchFragment.setArguments(bundle); // activity 传递参数到 fragment
+//        mDbSearchFragment.setArguments(bundle); // activity 传递参数到 fragment
 
         adapter = new ViewPagerAdapter(getSupportFragmentManager(), getBaseContext(), mListFragment); // 实例化适配器
         mViewPager.setAdapter(adapter); // 为ViewPager设置适配器
@@ -133,10 +129,10 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
                 mViewPager.setCurrentItem(1);
                 break;
             case R.id.idLocalSearch:
-                mViewPager.setCurrentItem(0);
+                mViewPager.setCurrentItem(2);
                 break;
             case R.id.idDatabaseSearch:
-                mViewPager.setCurrentItem(2);
+                mViewPager.setCurrentItem(0);
                 break;
         }
     }
