@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -14,6 +15,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -43,7 +46,8 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
     private Button btnSearch; // 查询按键
     private ListView lvDatabaseInfo;
     private List<WordInfo> mWordInfos;
-    private List<WordInfo> mSearchResultWordInfos;
+    private FloatingActionButton fab; // 悬浮按钮
+
     private WordsAdapter adapter;
     private InputMethodManager imm; // 输入法管理器
 
@@ -51,29 +55,40 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
     private String[] searchs; // 单词数组
     private Thread searchThread; // 搜索线程
 
+    private boolean isOpenUp = false;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (mDbSearchFragment == null){
             mDbSearchFragment = inflater.inflate(R.layout.fragment_database, container, false);
-            etInput = (EditText) mDbSearchFragment.findViewById(R.id.et_input);
-            btnSearch = (Button) mDbSearchFragment.findViewById(R.id.btn_search);
-            lvDatabaseInfo = (ListView) mDbSearchFragment.findViewById(R.id.lv_database_info);
-            mActivity = this.getActivity();
-            imm = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE); // 获取系统输入法服务
-            mWordInfos = new ArrayList<WordInfo>(); // 初始化集合
-            adapter = new WordsAdapter(mActivity, mWordInfos);// 实例化适配器
-            lvDatabaseInfo.setAdapter(adapter); // 设置适配器
-
-            etInput.addTextChangedListener(this);
-            btnSearch.setOnClickListener(this);
-            lvDatabaseInfo.setOnItemClickListener(this);
-
-            searchs = CommonUtils.getStringArray(R.array.search); // 从资源文件中读取到内存
-
-            LogUtiles.d("searchs length = "+searchs.length);
         }
         return mDbSearchFragment;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        etInput = (EditText) mDbSearchFragment.findViewById(R.id.et_input);
+        btnSearch = (Button) mDbSearchFragment.findViewById(R.id.btn_search);
+        lvDatabaseInfo = (ListView) mDbSearchFragment.findViewById(R.id.lv_database_info);
+        fab = (FloatingActionButton) mDbSearchFragment.findViewById(R.id.fab);
+
+        mActivity = this.getActivity();
+        imm = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE); // 获取系统输入法服务
+        mWordInfos = new ArrayList<WordInfo>(); // 初始化集合
+        adapter = new WordsAdapter(mActivity, mWordInfos);// 实例化适配器
+        lvDatabaseInfo.setAdapter(adapter); // 设置适配器
+
+        etInput.addTextChangedListener(this);
+        btnSearch.setOnClickListener(this);
+        fab.setOnClickListener(this);
+        lvDatabaseInfo.setOnItemClickListener(this);
+
+        searchs = CommonUtils.getStringArray(R.array.search); // 从资源文件中读取到内存
+
+        LogUtiles.d("searchs length = "+searchs.length);
     }
 
     @Override
@@ -96,11 +111,6 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
                     String explain = cursor.getString(/*cursor.getColumnIndex("explain")*/ 1);
                     String audio = cursor.getString(/*cursor.getColumnIndex("audio")*/ 2);
                     String sent = cursor.getString(/*cursor.getColumnIndex("sent")*/ 3);
-
-//                    LogUtiles.i("symbol = "+symbol);
-//                    LogUtiles.i("explain = "+explain);
-//                    LogUtiles.i("audio = "+audio);
-//                    LogUtiles.i("sent = "+sent);
 
                     WordInfo wordInfo = new WordInfo();
                     wordInfo.setSymbol(symbol);
@@ -184,6 +194,35 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
                 hideSoftInputMethod();
                 loadWordInfoFromDB(input); // 从数据库中查询
                 break;
+            case R.id.fab:
+                LogUtiles.d("FloatingActionButton is clicked,isOpenUp = "+isOpenUp);
+                int animId = 0;
+                if (isOpenUp){
+                    isOpenUp = false;
+                    animId = R.anim.fab_hide_rotate;
+                }else {
+                    isOpenUp = true;
+                    animId = R.anim.fab_show_rotate;
+                }
+                Animation anim = AnimationUtils.loadAnimation(mActivity, animId); // 启动动画
+                anim.setFillAfter(true);
+                fab.startAnimation(anim);
+//                Snackbar snackbar = Snackbar.make(v, "随性而为，率性而动", Snackbar.LENGTH_SHORT); // 初始化轻量级actionBar
+//                View snackbarView = snackbar.getView();// 获取 snackbar 视图
+//                snackbar.setActionTextColor(Color.RED);
+//                snackbar.setAction("关注", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        LogUtiles.d("关注 被按");
+//                    }
+//                });
+//                ViewGroup.LayoutParams vl = snackbarView.getLayoutParams();
+//                CoordinatorLayout.LayoutParams cl = new CoordinatorLayout.LayoutParams(vl.width, vl.height);
+//                cl.gravity = Gravity.CENTER_VERTICAL;
+//                snackbarView.setLayoutParams(cl);
+//                snackbar.show();
+                break;
+            default:break;
         }
     }
 
