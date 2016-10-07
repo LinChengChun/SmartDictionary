@@ -29,6 +29,7 @@ import com.example.trim.smartdictionary.adapter.WordsAdapter;
 import com.example.trim.smartdictionary.bean.WordInfo;
 import com.example.trim.smartdictionary.utils.CommonUtils;
 import com.example.trim.smartdictionary.utils.LogUtiles;
+import com.example.trim.smartdictionary.view.CircleNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,13 +55,14 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
     private String inputText; // 获取输入的文本
     private String[] searchs; // 单词数组
     private Thread searchThread; // 搜索线程
+    private CircleNavigationView mCircleNavigationView; // 圆形导航控件
 
     private boolean isOpenUp = false;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (mDbSearchFragment == null){
+        if (mDbSearchFragment == null) {
             mDbSearchFragment = inflater.inflate(R.layout.fragment_database, container, false);
         }
         return mDbSearchFragment;
@@ -74,21 +76,52 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         btnSearch = (Button) mDbSearchFragment.findViewById(R.id.btn_search);
         lvDatabaseInfo = (ListView) mDbSearchFragment.findViewById(R.id.lv_database_info);
         fab = (FloatingActionButton) mDbSearchFragment.findViewById(R.id.fab);
+        mCircleNavigationView = (CircleNavigationView) mDbSearchFragment.findViewById(R.id.cnv);
 
         mActivity = this.getActivity();
-        imm = (InputMethodManager)mActivity.getSystemService(Context.INPUT_METHOD_SERVICE); // 获取系统输入法服务
+        imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE); // 获取系统输入法服务
         mWordInfos = new ArrayList<WordInfo>(); // 初始化集合
         adapter = new WordsAdapter(mActivity, mWordInfos);// 实例化适配器
         lvDatabaseInfo.setAdapter(adapter); // 设置适配器
+
+        searchs = CommonUtils.getStringArray(R.array.search); // 从资源文件中读取到内存
+
+        LogUtiles.d("searchs length = " + searchs.length);
 
         etInput.addTextChangedListener(this);
         btnSearch.setOnClickListener(this);
         fab.setOnClickListener(this);
         lvDatabaseInfo.setOnItemClickListener(this);
+        mCircleNavigationView.setOnClickListener(new CircleNavigationView.CircleNavigationOnClickListener() {
+            @Override
+            public void up() {
 
-        searchs = CommonUtils.getStringArray(R.array.search); // 从资源文件中读取到内存
+            }
 
-        LogUtiles.d("searchs length = "+searchs.length);
+            @Override
+            public void down() {
+
+            }
+
+            @Override
+            public void left() {
+
+            }
+
+            @Override
+            public void right() {
+
+            }
+
+            @Override
+            public void center() {
+                mCircleNavigationView.setVisibility(View.INVISIBLE);
+                Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.fab_hide_rotate); // 启动动画
+                anim.setFillAfter(true);
+                fab.startAnimation(anim);
+            }
+        });
+
     }
 
     @Override
@@ -96,16 +129,16 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         super.onDestroyView();
     }
 
-    private synchronized void searchWordInfoFromDB(final String input){
+    private synchronized void searchWordInfoFromDB(final String input) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 if (!mWordInfos.isEmpty()) mWordInfos.clear(); // 情况集合
-                LogUtiles.i("searchWordInfoFromDB start,input = "+input);
+                LogUtiles.i("searchWordInfoFromDB start,input = " + input);
                 SQLiteDatabase database = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
                 Cursor cursor = database.rawQuery("select * from dict where sent like '%<font color=red >"
-                        +input+"%';", null);
-                while (cursor.moveToNext()){
+                        + input + "%';", null);
+                while (cursor.moveToNext()) {
 
                     String symbol = cursor.getString(/*cursor.getColumnIndex("symbol")*/ 0);
                     String explain = cursor.getString(/*cursor.getColumnIndex("explain")*/ 1);
@@ -135,24 +168,25 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
 
     /**
      * 根据数组里边的坐标从数据库导入每一条记录的数据
+     *
      * @param input
      */
-    private synchronized void loadWordInfoFromDB(String input){
+    private synchronized void loadWordInfoFromDB(String input) {
         if (TextUtils.isEmpty(input)) // 如果输入为空那么不进行数据库查询
             input = "a";
         if (!mWordInfos.isEmpty()) mWordInfos.clear(); // 清空集合
         long startTime = System.currentTimeMillis();
-        LogUtiles.i("loadWordInfoFromDB start,input = "+input);
+        LogUtiles.i("loadWordInfoFromDB start,input = " + input);
 
         SQLiteDatabase database = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
         Cursor cursor = database.rawQuery("select * from dict", null);
 
-        for (int i = 0; i<searchs.length; i++){
-            if ( searchs[i].charAt(0) < input.charAt(0) )
+        for (int i = 0; i < searchs.length; i++) {
+            if (searchs[i].charAt(0) < input.charAt(0))
                 continue;
-            if ( searchs[i].charAt(0) > input.charAt(0) ) // 比较第一个字符的大小，只匹配第一字符相同的单词
+            if (searchs[i].charAt(0) > input.charAt(0)) // 比较第一个字符的大小，只匹配第一字符相同的单词
                 break; // 跳出扫描
-            if ( searchs[i].startsWith(input) ){
+            if (searchs[i].startsWith(input)) {
                 cursor.moveToPosition(i); // 移动光标到某一行
                 String symbol = cursor.getString(/*cursor.getColumnIndex("symbol")*/ 0);
                 String explain = cursor.getString(/*cursor.getColumnIndex("explain")*/ 1);
@@ -174,7 +208,7 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         LogUtiles.i("loadWordInfoFromDB end");
         long endTime = System.currentTimeMillis();
         long diff = endTime - startTime; // 计算时间差值
-        LogUtiles.d("spend "+ diff+" ms");
+        LogUtiles.d("spend " + diff + " ms");
         mActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -185,54 +219,42 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.btn_search:
                 String input = etInput.getText().toString().trim();
-                if (TextUtils.isEmpty(input)){
+                if (TextUtils.isEmpty(input)) {
                     input = "a";
                 }
                 hideSoftInputMethod();
                 loadWordInfoFromDB(input); // 从数据库中查询
                 break;
             case R.id.fab:
-                LogUtiles.d("FloatingActionButton is clicked,isOpenUp = "+isOpenUp);
-                int animId = 0;
-                if (isOpenUp){
-                    isOpenUp = false;
-                    animId = R.anim.fab_hide_rotate;
+                LogUtiles.d("FloatingActionButton is clicked,isOpenUp = " + isOpenUp);
+
+                if (mCircleNavigationView.isShown()){
+                    mCircleNavigationView.setVisibility(View.INVISIBLE);
+                    Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.fab_hide_rotate); // 启动动画
+                    anim.setFillAfter(true);
+                    fab.startAnimation(anim);
                 }else {
-                    isOpenUp = true;
-                    animId = R.anim.fab_show_rotate;
+                    mCircleNavigationView.setVisibility(View.VISIBLE); // 可见的
+                    Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.fab_show_rotate); // 启动动画
+                    anim.setFillAfter(true);
+                    fab.startAnimation(anim);
                 }
-                Animation anim = AnimationUtils.loadAnimation(mActivity, animId); // 启动动画
-                anim.setFillAfter(true);
-                fab.startAnimation(anim);
-//                Snackbar snackbar = Snackbar.make(v, "随性而为，率性而动", Snackbar.LENGTH_SHORT); // 初始化轻量级actionBar
-//                View snackbarView = snackbar.getView();// 获取 snackbar 视图
-//                snackbar.setActionTextColor(Color.RED);
-//                snackbar.setAction("关注", new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        LogUtiles.d("关注 被按");
-//                    }
-//                });
-//                ViewGroup.LayoutParams vl = snackbarView.getLayoutParams();
-//                CoordinatorLayout.LayoutParams cl = new CoordinatorLayout.LayoutParams(vl.width, vl.height);
-//                cl.gravity = Gravity.CENTER_VERTICAL;
-//                snackbarView.setLayoutParams(cl);
-//                snackbar.show();
                 break;
-            default:break;
+            default:
+                break;
         }
     }
 
     /**
      * 隐藏输入法
      */
-    private void hideSoftInputMethod(){
+    private void hideSoftInputMethod() {
 
-        boolean isOpen=imm.isActive();//isOpen若返回true，则表示输入法打开
-        LogUtiles.d("isOpen = "+isOpen);
+        boolean isOpen = imm.isActive();//isOpen若返回true，则表示输入法打开
+        LogUtiles.d("isOpen = " + isOpen);
 //        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0); //强制隐藏键盘
     }
@@ -264,6 +286,7 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
 
     /**
      * 列表点击事件
+     *
      * @param parent
      * @param view
      * @param position
@@ -277,12 +300,13 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
 
     /**
      * 进入单词详细信息页面
+     *
      * @param wordInfo
      * @param view
      */
-    private void enterDetailInfoActivity(WordInfo wordInfo, View view){
+    private void enterDetailInfoActivity(WordInfo wordInfo, View view) {
         Intent intent = new Intent(mActivity, DetailInfoActivity.class);
-        intent.putExtra("word", ((WordsAdapter.ViewHolder)view.getTag()).tvName.getText());
+        intent.putExtra("word", ((WordsAdapter.ViewHolder) view.getTag()).tvName.getText());
         intent.putExtra("wordInfo", wordInfo);
         mActivity.startActivity(intent);
     }
@@ -291,4 +315,5 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
     public void run() {
         loadWordInfoFromDB(inputText); // 从数据库中查询单词
     }
+
 }

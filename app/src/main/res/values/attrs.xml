@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--声明一个属性集 名称-->
+    <declare-styleable name="CircleNavigationView" >
+        <!--声明圆形导航控件的半径大小属性-->
+        <attr name="radius" format="dimension" />
+
+        <!--声明一个角度属性-->
+        <attr name="angle" format="float" />
+
+        <!--声明有多少个子item属性-->
+        <attr name="items" format="integer" />
+
+        <attr name="up_text" format="string" />
+        <attr name="down_text" format="string" />
+        <attr name="left_text" format="string" />
+        <attr name="right_text" format="string" />
+        
+    </declare-styleable>
+</resources>

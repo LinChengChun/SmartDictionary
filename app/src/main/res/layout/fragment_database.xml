@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:cclinView="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -52,6 +53,20 @@
             app:pressedTranslationZ="@dimen/dimen_12dp"
             app:fabSize="normal"
             android:src="@drawable/fab_add" />
+
+        <com.example.trim.smartdictionary.view.CircleNavigationView
+            android:visibility="invisible"
+            android:id="@+id/cnv"
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            cclinView:up_text="页头"
+            cclinView:down_text="页尾"
+            cclinView:left_text="足迹"
+            cclinView:right_text="搜索"
+            cclinView:angle="0.0"
+            cclinView:radius="200dp"
+            cclinView:items="4" />
     </FrameLayout>
 
 
