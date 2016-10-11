@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -51,9 +52,13 @@ public class CircleNavigationView extends View {
     private int mWidthOnWindow;
     private int mHeightOnWindow;
 
+    private int mWidth = 900; // px
+    private int mHeight = 900; // px
     // 圆形导航监听接口
     private CircleNavigationOnClickListener mOnClickListener;
 
+    private int textSize = 15; // 文本字体大小
+    private float lineWidth = 1.0f; // 线宽
     private String upText; // 区域文本
     private String downText;
     private String leftText;
@@ -104,13 +109,19 @@ public class CircleNavigationView extends View {
     }
 
     public CircleNavigationView(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
-    public CircleNavigationView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+    public CircleNavigationView(Context context,  AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public CircleNavigationView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        this(context, attrs, defStyleAttr, 0);
+    }
+
+    public CircleNavigationView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
 
         int count = attrs.getAttributeCount(); // 获取属性个数
         LogUtiles.d("count = "+count);
@@ -121,16 +132,15 @@ public class CircleNavigationView extends View {
         }
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CircleNavigationView);
-        int taCount = typedArray.getIndexCount();
+        int taCount = typedArray.getIndexCount(); // 数组实际可用长度
         for (int i=0; i<taCount; i++){
             int itemId = typedArray.getIndex(i);
             LogUtiles.d("itemId = "+itemId);
 
             switch (itemId){
                 case R.styleable.CircleNavigationView_radius:
-                    float radio = typedArray.getDimension(itemId, 0);
-                    LogUtiles.d("radio = "+radio);
-                    mRadius = radio; // px
+                    float radio = typedArray.getDimension(itemId, 0); // 从图纸中获取零件半径的大小
+//                    mRadius = radio; // px
                     LogUtiles.d("dp radio = "+mRadius);
                     break;
 
@@ -139,9 +149,19 @@ public class CircleNavigationView extends View {
                     LogUtiles.d("items = "+items);
                     break;
 
-                case R.styleable.CircleNavigationView_angle:
+                case R.styleable.CircleNavigationView_angle: // 获取角度
                     float angle = typedArray.getFloat(itemId, 0);
                     LogUtiles.d("angle = "+angle);
+                    break;
+
+                case R.styleable.CircleNavigationView_text_size: // 获取文本大小
+                    textSize = typedArray.getDimensionPixelSize(itemId, textSize);
+                    LogUtiles.d("textSize = "+textSize);
+                    break;
+
+                case R.styleable.CircleNavigationView_line_width: // 获取线宽
+                    lineWidth = typedArray.getFloat(itemId, lineWidth);
+                    LogUtiles.d("lineWidth = "+lineWidth);
                     break;
             }
         }
@@ -152,11 +172,7 @@ public class CircleNavigationView extends View {
         LogUtiles.d(upText+";"+downText+";"+leftText+";"+rightText+";");
         typedArray.recycle(); // 回收资源
 
-    }
-
-    public CircleNavigationView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
+        init();// 初始化资源
     }
 
     /**
@@ -176,13 +192,13 @@ public class CircleNavigationView extends View {
         mLinePaint = new Paint();
         mLinePaint.setAntiAlias(true);// 设置画笔的锯齿效果
         mLinePaint.setColor(Color.WHITE); // 设置画笔颜色为白色
-        mLinePaint.setStrokeWidth((float) 3.0); //设置线宽
+        mLinePaint.setStrokeWidth(lineWidth); //设置线宽
 
         // 2、设置绘制文本的画笔
         mTextPaint = new Paint();
         mTextPaint.setAntiAlias(true);// 设置画笔的锯齿效果
         mTextPaint.setColor(Color.WHITE); // 设置画笔颜色为白色
-        mTextPaint.setTextSize((float) 50.0); //设置线宽
+        mTextPaint.setTextSize(textSize); //设置线宽
         textHeight = mTextPaint.descent() + mTextPaint.ascent(); // 文本高度 = 文本上下坡高度之和
 
         mCenterPaint = new Paint();
@@ -199,14 +215,24 @@ public class CircleNavigationView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        int width = MeasureSpec.getSize(widthMeasureSpec);
-        int height = MeasureSpec.getSize(heightMeasureSpec);
+        int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        LogUtiles.d("real width = "+width);
-        LogUtiles.d("real height = "+height);
+        LogUtiles.d("real widthSpecSize = "+widthSpecSize);
+        LogUtiles.d("real heightSpecSize = "+heightSpecSize);
 
-        if (mRadius > 0)
-            setMeasuredDimension((int)mRadius, (int)mRadius);
+        if (widthSpecMode == MeasureSpec.AT_MOST && heightSpecMode == MeasureSpec.AT_MOST){
+            setMeasuredDimension(mWidth, mHeight);
+        }else if (widthSpecMode == MeasureSpec.AT_MOST){
+            setMeasuredDimension(mWidth, heightSpecSize);
+        }else if (heightSpecMode == MeasureSpec.AT_MOST){
+            setMeasuredDimension(widthSpecSize, mHeight);
+        }
+
+//        if (mRadius > 0)
+//            setMeasuredDimension((int)mRadius, (int)mRadius);
     }
 
     @Override
@@ -227,24 +253,35 @@ public class CircleNavigationView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         LogUtiles.d("onDraw");
-        if (mRadius > 0) {
-            float cx = ((int)mRadius)>>1; // 获取半径 直径除以2
-            float cy = cx;
-            float r = cx;
+
+        final int paddingLeft = getPaddingLeft();
+        final int paddingRight = getPaddingRight();
+        final int paddingTop = getPaddingTop();
+        final int paddingBottom = getPaddingBottom();
+
+        int width = getWidth()-paddingRight-paddingLeft; // 获取布局阶段控件宽度
+        int height = getHeight()-paddingBottom-paddingTop; // 高度
+        int radius = Math.min(width, height)/2; // 半径为高度、宽度的最小值的一半
+
+        mRadius = radius;
+        if (radius > 0) {
+            float cx = paddingLeft + radius; // 获取圆心位置，水平坐标为控件宽度的一半
+            float cy = paddingTop + radius; // 垂直坐标为控件高度一半
+            float r = radius;
 
             LogUtiles.d("cx = " + cx);
             LogUtiles.d("cy = " + cy);
             LogUtiles.d("r = " + r);
 
             canvas.drawCircle(cx, cy, r, mArcPaint);
-            drawLines(canvas);
+            drawLines(canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
 
-            drawText(0, 1, upText, canvas);
-            drawText(0, -1, downText, canvas);
-            drawText(-1, 0, leftText, canvas);
-            drawText(1, 0, rightText, canvas);
+            drawText(0, 1, upText, canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
+            drawText(0, -1, downText, canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
+            drawText(-1, 0, leftText, canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
+            drawText(1, 0, rightText, canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
 
-            drawCenterBitmap(canvas);
+            drawCenterBitmap(canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
         }
     }
 
@@ -252,14 +289,14 @@ public class CircleNavigationView extends View {
      * 绘制交叉直线
      * @param canvas
      */
-    private void drawLines(Canvas canvas) {
-        float startX = (float) ((1-Math.cos(Math.toRadians(45.0))) * mRadius/2);
-        float startY = (float) ((1-Math.sin(Math.toRadians(45.0))) * mRadius/2);
-        float stopX = mRadius-startX;
-        float stopY = mRadius-startY;
+    private void drawLines(Canvas canvas, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom) {
+        float startX = (float) ((1-Math.cos(Math.toRadians(45.0))) * mRadius);
+        float startY = (float) ((1-Math.sin(Math.toRadians(45.0))) * mRadius);
+        float stopX = 2*mRadius-startX;
+        float stopY = 2*mRadius-startY;
 
-        canvas.drawLine(startX, startY, stopX, stopY, mLinePaint);
-        canvas.drawLine(startX, stopY, stopX, startY, mLinePaint);
+        canvas.drawLine(startX+paddingLeft, startY+paddingTop, stopX+paddingLeft, stopY+paddingTop, mLinePaint);
+        canvas.drawLine(startX+paddingLeft, stopY+paddingTop, stopX+paddingLeft, startY+paddingTop, mLinePaint);
     }
 
     @Override
@@ -279,29 +316,37 @@ public class CircleNavigationView extends View {
      * @param y
      * @param text
      * @param canvas
+     * @param paddingLeft
+     * @param paddingRight
+     * @param paddingTop
+     * @param paddingBottom
      */
-    private void drawText(int x, int y, String text, Canvas canvas){
+    private void drawText(int x, int y, String text, Canvas canvas, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom){
         // (0, 1) (0,-1) (1,0) (-1,0)
         float textWidth = mTextPaint.measureText(text); // 测量文本宽度
         if (x ==0 && y==1) {
-            canvas.drawText(text, mRadius / 2 - textWidth / 2, mRadius*3/16 - textHeight / 2, mTextPaint);
+            canvas.drawText(text, paddingLeft+mRadius - textWidth / 2, paddingTop+mRadius*3/8 - textHeight / 2, mTextPaint);
         }else if(x ==0 && y==-1) {
-            canvas.drawText(text, mRadius / 2 - textWidth / 2, (mRadius*13/16) - textHeight / 2, mTextPaint);
+            canvas.drawText(text, paddingLeft+mRadius - textWidth / 2, (paddingTop+mRadius*13/8) - textHeight / 2, mTextPaint);
         }else if(x ==1 && y==0) {
-            canvas.drawText(text, (mRadius*13/16) - textWidth / 2, mRadius / 2 - textHeight / 2, mTextPaint);
+            canvas.drawText(text, (paddingTop+mRadius*13/8) - textWidth / 2, paddingLeft+mRadius - textHeight / 2, mTextPaint);
         }else if(x ==-1 && y==0) {
-            canvas.drawText(text, mRadius*3/16 - textWidth / 2, mRadius / 2 - textHeight / 2, mTextPaint);
+            canvas.drawText(text, paddingTop+mRadius*3/8 - textWidth / 2, paddingLeft+mRadius - textHeight / 2, mTextPaint);
         }
     }
 
     /**
      * 绘制中间的退出按键
      * @param canvas
+     * @param paddingLeft
+     * @param paddingRight
+     * @param paddingTop
+     * @param paddingBottom
      */
-    private void drawCenterBitmap(Canvas canvas){
-        int imageWidth = (int) (mRadius/8);// 设置图片宽度为直径 1/8
-        int x = (int) (mRadius/2);
-        int y = (int) (mRadius/2);
+    private void drawCenterBitmap(Canvas canvas, int paddingLeft, int paddingRight, int paddingTop, int paddingBottom){
+        int imageWidth = (int) (mRadius/4);// 设置图片宽度为直径 1/8
+        int x = (int) (paddingLeft+mRadius);
+        int y = (int) (paddingTop+mRadius);
         Rect rect = new Rect(x-imageWidth/2, y-imageWidth/2, x+imageWidth/2, y+imageWidth/2);
 
         canvas.drawCircle(x, y, imageWidth, mCenterPaint);
@@ -364,8 +409,8 @@ public class CircleNavigationView extends View {
      */
     private int getEventByPosition(int x, int y){
         int result = UNSPECIFIED; // 返回值
-        int zeroX = mWidthOnWindow/2;
-        int zeroY = mHeightOnWindow/2;
+        int zeroX = (int) (getPaddingLeft()+mRadius);
+        int zeroY = (int) (getPaddingTop()+mRadius);
         x = x-zeroX;
         y = zeroY-y;
         LogUtiles.d("x = "+x+";y = "+y+";");
@@ -376,11 +421,11 @@ public class CircleNavigationView extends View {
         absZ = (int) Math.sqrt(absZ);
         LogUtiles.d("absZ = "+absZ);
 
-        if (absZ<mRadius/8){
+        if (absZ<mRadius/4){
             // 中心圆区域
             LogUtiles.d("中心圆区域");
             return CENTER;
-        }else if (absZ>mRadius/2){
+        }else if (absZ>mRadius){
             // 超出圆形区域
             LogUtiles.d("超出圆形区域");
             return UNSPECIFIED;

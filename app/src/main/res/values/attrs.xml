@@ -11,10 +11,12 @@
         <!--声明有多少个子item属性-->
         <attr name="items" format="integer" />
 
+        <attr name="text_size" format="dimension" />
+        <attr name="line_width" format="float" />
         <attr name="up_text" format="string" />
         <attr name="down_text" format="string" />
         <attr name="left_text" format="string" />
         <attr name="right_text" format="string" />
-        
+
     </declare-styleable>
 </resources>
