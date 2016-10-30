@@ -1,6 +1,7 @@
 package com.example.trim.smartdictionary.fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -29,6 +31,7 @@ import com.example.trim.smartdictionary.adapter.WordsAdapter;
 import com.example.trim.smartdictionary.bean.WordInfo;
 import com.example.trim.smartdictionary.utils.CommonUtils;
 import com.example.trim.smartdictionary.utils.LogUtiles;
+import com.example.trim.smartdictionary.utils.PromptManager;
 import com.example.trim.smartdictionary.view.CircleNavigationView;
 
 import java.util.ArrayList;
@@ -38,7 +41,8 @@ import java.util.List;
  * Created by cclin on 2016/9/26.
  */
 
-public class DbSearchFragment extends Fragment implements View.OnClickListener, TextWatcher, AdapterView.OnItemClickListener, Runnable {
+public class DbSearchFragment extends Fragment implements View.OnClickListener, TextWatcher,
+        AdapterView.OnItemClickListener, Runnable, AnimationListener {
 
     private static String path = "data/data/com.example.trim.smartdictionary/files/font.ttf";
     private View mDbSearchFragment = null; // 定义一个视图组件
@@ -56,6 +60,9 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
     private String[] searchs; // 单词数组
     private Thread searchThread; // 搜索线程
     private CircleNavigationView mCircleNavigationView; // 圆形导航控件
+    private AlertDialog navigationDialog;
+    private Animation mHideAnimatiion; // 导航栏显示
+    private Animation mShowAnimatiion;
 
     private boolean isOpenUp = false;
 
@@ -95,38 +102,53 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         mCircleNavigationView.setOnClickListener(new CircleNavigationView.CircleNavigationOnClickListener() {
             @Override
             public void up() {
-
+                PromptManager.showShortToast(mActivity, "你点击了 页头");
             }
 
             @Override
             public void down() {
-
+                PromptManager.showShortToast(mActivity, "你点击了 页尾");
             }
 
             @Override
             public void left() {
-
+                PromptManager.showShortToast(mActivity, "你点击了 足迹");
             }
 
             @Override
             public void right() {
-
+                PromptManager.showShortToast(mActivity, "你点击了 搜索");
             }
 
             @Override
             public void center() {
-                mCircleNavigationView.setVisibility(View.INVISIBLE);
+                PromptManager.showShortToast(mActivity, "你点击了 中心");
+                mCircleNavigationView.startAnimation(mHideAnimatiion); // 播放隐藏动画
+
                 Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.fab_hide_rotate); // 启动动画
                 anim.setFillAfter(true);
                 fab.startAnimation(anim);
             }
         });
 
+
+        mHideAnimatiion = AnimationUtils.loadAnimation(mActivity, R.anim.navigation_hide);
+        mHideAnimatiion.setFillAfter(true); // 动画完成后不恢复原状
+        mHideAnimatiion.setAnimationListener(this);
+
+        mShowAnimatiion = AnimationUtils.loadAnimation(mActivity, R.anim.navigation_show);
+        mShowAnimatiion.setFillAfter(true); // 动画完成后不恢复原状
+        mShowAnimatiion.setAnimationListener(this);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mShowAnimatiion.setAnimationListener(null);
+        mHideAnimatiion.setAnimationListener(null);
+        mShowAnimatiion = null;
+        mHideAnimatiion = null;
+
     }
 
     private synchronized void searchWordInfoFromDB(final String input) {
@@ -229,17 +251,45 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
                 loadWordInfoFromDB(input); // 从数据库中查询
                 break;
             case R.id.fab:
-                LogUtiles.d("FloatingActionButton is clicked,isOpenUp = " + isOpenUp);
+                LogUtiles.d("FloatingActionButton is clicked,isShown = " + mCircleNavigationView.isShown());
 
                 if (mCircleNavigationView.isShown()){
-                    mCircleNavigationView.setVisibility(View.INVISIBLE);
+                    mCircleNavigationView.startAnimation(mHideAnimatiion); // 播放隐藏动画
+//                    mCircleNavigationView.animate()
+//                            .scaleX(0.0f)
+//                            .scaleY(0.0f)
+////                            .translationY(view.getHeight())
+////                            .alpha(0.0f)
+//                            .setDuration(500)
+//                            .setListener(new AnimatorListenerAdapter() {
+//                                @Override
+//                                public void onAnimationEnd(Animator animation) {
+//                                    super.onAnimationEnd(animation);
+//                                    mCircleNavigationView.setVisibility(View.GONE);
+//                                }
+//                            });
+
                     Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.fab_hide_rotate); // 启动动画
-                    anim.setFillAfter(true);
+                    anim.setFillAfter(true); // 动画完成后不恢复原状
                     fab.startAnimation(anim);
                 }else {
-                    mCircleNavigationView.setVisibility(View.VISIBLE); // 可见的
+                    mCircleNavigationView.startAnimation(mShowAnimatiion); // 播放显示动画
+//                    mCircleNavigationView.animate()
+//                            .scaleX(1.0f)
+//                            .scaleY(1.0f)
+////                            .translationY(view.getHeight())
+////                            .alpha(1.0f)
+//                            .setDuration(500)
+//                            .setListener(new AnimatorListenerAdapter() {
+//                                @Override
+//                                public void onAnimationEnd(Animator animation) {
+//                                    super.onAnimationEnd(animation);
+//                                    mCircleNavigationView.setVisibility(View.VISIBLE);
+//                                }
+//                            });
+
                     Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.fab_show_rotate); // 启动动画
-                    anim.setFillAfter(true);
+                    anim.setFillAfter(true); // 动画完成后不恢复原状
                     fab.startAnimation(anim);
                 }
                 break;
@@ -316,4 +366,57 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         loadWordInfoFromDB(inputText); // 从数据库中查询单词
     }
 
+    private void showNavigationDialog(Context context){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.NavigationCustomDialog);
+
+        navigationDialog = builder.create();
+        View view = View.inflate(context, R.layout.dialog_navigation, null);
+//        TextView view = new TextView(context);
+//        view.setText("hello world!!");
+//        view.setTextSize(20.0f);
+//        view.setTextColor(Color.WHITE);
+//        view.setBackgroundColor(Color.BLUE);
+//        navigationDialog.setView(view,0,0,0,0);
+
+        navigationDialog.setCanceledOnTouchOutside(true);
+        navigationDialog.show();
+        navigationDialog.setContentView(view);
+        Animation animation = AnimationUtils.loadAnimation(context, R.anim.navigation_show);
+        animation.setFillAfter(true); // 动画完成后不恢复原状
+        view.startAnimation(animation);
+    }
+
+    private void dismissNavigationDialog(){
+        if (navigationDialog.isShowing()) {
+
+            Animation animation = AnimationUtils.loadAnimation(mActivity, R.anim.navigation_hide);
+            animation.setFillAfter(true); // 动画完成后不恢复原状
+            navigationDialog.getWindow().findViewById(R.id.cnv).startAnimation(animation);
+            navigationDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onAnimationStart(Animation animation) {
+        LogUtiles.d("onAnimationStart..."+animation);
+        if (animation == mShowAnimatiion) {
+            mCircleNavigationView.setVisibility(View.VISIBLE); // 可见的
+        }
+
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        LogUtiles.d("onAnimationEnd..."+animation);
+        if (animation == mHideAnimatiion) {
+            mCircleNavigationView.clearAnimation(); // 设置属性前需要关闭动画才能起作用
+            mCircleNavigationView.setVisibility(View.INVISIBLE);
+        }else if (animation == mShowAnimatiion){
+
+        }
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+    }
 }
