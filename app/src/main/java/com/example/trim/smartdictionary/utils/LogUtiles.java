@@ -7,7 +7,7 @@ import android.util.Log;
  */
 public class LogUtiles {
 
-    private static Boolean isDebug = true;
+    private static boolean isDebug = true;
     private final static String TAG = "cclin";
     public static void i(String msg){
         if (isDebug)

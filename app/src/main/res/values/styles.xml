@@ -1,11 +1,26 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/app_primary</item>
+        <item name="colorPrimaryDark">@color/app_primary_dark</item>
         <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!--启动页面主题，模仿微信启动静态页面，目前无法加载布局，默认window背景，设置状态栏为透明-->
+    <style name="StartActivityTheme" parent="AppTheme">
+        <item name="android:background">@drawable/iphone_icon</item>
+        <item name="android:windowTranslucentStatus">true</item>
+
+        <!--解决启动应用白屏、黑屏的两种方法，1、设置窗体为透明色 2、设置窗体背景图-->
+        <!--<item name="android:windowIsTranslucent">true</item>-->
+
+    </style>
+
+    <!--设置状态栏为透明-->
+    <style name="NormalActivityTheme" parent="AppTheme">
+        <item name="android:windowTranslucentStatus">true</item>
     </style>
 
     <!-- Dialog对话框 -->
@@ -19,6 +34,18 @@
         <item name="android:background">@null</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:gravity">bottom</item>
+    </style>
+
+    <style name="NavigationCustomDialog" parent="@android:style/Theme.Dialog">
+        <!--背景颜色及透明程度-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--是否有标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <!--是否浮现在activity之上-->
+        <item name="android:windowIsFloating">true</item>
+        <!--是否模糊-->
+        <item name="android:backgroundDimEnabled">false</item>
+        <!--<item name="android:windowFrame">@null</item>-->
     </style>
 
     <!-- ProgressBar -->

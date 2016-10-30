@@ -179,14 +179,15 @@ public class CircleNavigationView extends View {
      * 定义一个初始化方法
      */
     private void init(){
-        setBackgroundColor(Color.TRANSPARENT); // 设置背景色为红色
+        setBackgroundColor(Color.TRANSPARENT); // 设置背景色为透明色
 
         // 1、设置绘制圆盘的画笔
         mArcPaint = new Paint();
         mArcPaint.setAntiAlias(true);// 设置画笔的锯齿效果
         mArcPaint.setDither(true);
 //        mArcPaint.setColor(Color.argb(0xdf, 0x3f, 0x51, 0xb5)); //102b6a 2a5caa 3F51B5 33a3dc
-        mArcPaint.setColor(Color.argb(0xff, 0x4e, 0x72, 0xb8));
+//        mArcPaint.setColor(Color.argb(0xff, 0x4e, 0x72, 0xb8));
+        mArcPaint.setColor(getResources().getColor(R.color.app_primary));
 
         // 2、设置绘制白线的画笔
         mLinePaint = new Paint();
@@ -204,7 +205,7 @@ public class CircleNavigationView extends View {
         mCenterPaint = new Paint();
         mCenterPaint.setAntiAlias(true);// 设置画笔的锯齿效果
         mCenterPaint.setDither(true);
-        mCenterPaint.setColor(getResources().getColor(R.color.colorPrimary)); //102b6a 2a5caa 3F51B5
+        mCenterPaint.setColor(getResources().getColor(R.color.app_primary_dark)); //102b6a 2a5caa 3F51B5
         mCenterBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_close); // 设置中心的图片
         // 可获得焦点
         setFocusable(true);

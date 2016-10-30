@@ -1,7 +1,6 @@
 package com.example.trim.smartdictionary.activity;
 
 import android.content.Intent;
-import android.view.Window;
 
 import com.example.trim.smartdictionary.R;
 import com.example.trim.smartdictionary.base.BaseActivity;
@@ -20,7 +19,7 @@ public class SplashActivity extends BaseActivity{
 
     @Override
     protected void initWindow() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
 
     @Override
@@ -57,6 +56,7 @@ public class SplashActivity extends BaseActivity{
 
     @Override
     protected void initView() {
+//        CommonUtils.setTranslucent(this);// 使状态栏透明
     }
 
     @Override

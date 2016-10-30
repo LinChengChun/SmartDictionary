@@ -43,13 +43,13 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     protected void initView() {
+//        CommonUtils.setTranslucent(this);// 使状态栏透明
+
         mViewPager = retrieveView(R.id.idViewPager);
         mLocalSearchTextView = retrieveView(R.id.idLocalSearch);
         mInlineSearchTextView = retrieveView(R.id.idInlineSearch);
         mDatabaseSearchTextView = retrieveView(R.id.idDatabaseSearch);
 
-//        mLocalSearchTextView.setTextColor(getResources().getColor(R.color.colorAccent));
-//        mInlineSearchTextView.setTextColor(getResources().getColor(android.R.color.black));
         mLocalSearchTextView.setAlpha(0.3f);
         mInlineSearchTextView.setAlpha(0.3f);
         mDatabaseSearchTextView.setAlpha(0.3f);
@@ -85,7 +85,7 @@ public class ViewPagerActivity extends BaseActivity implements View.OnClickListe
             @Override
             public void onPageSelected(int position) {
                 if (position==0){
-                    mDbSearchFragment.onStart();
+//                    mDbSearchFragment.onStart();
                 }else {
 
                 }
