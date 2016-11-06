@@ -18,5 +18,10 @@
         <attr name="left_text" format="string" />
         <attr name="right_text" format="string" />
 
+        <!--圆形背景色-->
+        <attr name="home_background_color" format="color" />
+
+        <!--圆形背景透明度-->
+        <attr name="home_alpha" format="float" />
     </declare-styleable>
 </resources>

@@ -126,7 +126,7 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
                 mCircleNavigationView.startAnimation(mHideAnimatiion); // 播放隐藏动画
 
                 Animation anim = AnimationUtils.loadAnimation(mActivity, R.anim.fab_hide_rotate); // 启动动画
-                anim.setFillAfter(true);
+                anim.setFillAfter(true); // 旋转后不恢复
                 fab.startAnimation(anim);
             }
         });
@@ -401,8 +401,8 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         LogUtiles.d("onAnimationStart..."+animation);
         if (animation == mShowAnimatiion) {
             mCircleNavigationView.setVisibility(View.VISIBLE); // 可见的
+            lvDatabaseInfo.setEnabled(false); // 屏蔽该控件
         }
-
     }
 
     @Override
@@ -411,6 +411,7 @@ public class DbSearchFragment extends Fragment implements View.OnClickListener, 
         if (animation == mHideAnimatiion) {
             mCircleNavigationView.clearAnimation(); // 设置属性前需要关闭动画才能起作用
             mCircleNavigationView.setVisibility(View.INVISIBLE);
+            lvDatabaseInfo.setEnabled(true); // 使能该控件
         }else if (animation == mShowAnimatiion){
 
         }

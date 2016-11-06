@@ -1,6 +1,7 @@
 package com.example.trim.smartdictionary.view;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -63,46 +64,9 @@ public class CircleNavigationView extends View {
     private String downText;
     private String leftText;
     private String rightText;
-
-    public float getmRadius() {
-        return mRadius;
-    }
-
-    public void setmRadius(float mRadius) {
-        this.mRadius = mRadius;
-    }
-
-    public String getUpText() {
-        return upText;
-    }
-
-    public void setUpText(String upText) {
-        this.upText = upText;
-    }
-
-    public String getDownText() {
-        return downText;
-    }
-
-    public void setDownText(String downText) {
-        this.downText = downText;
-    }
-
-    public String getLeftText() {
-        return leftText;
-    }
-
-    public void setLeftText(String leftText) {
-        this.leftText = leftText;
-    }
-
-    public String getRightText() {
-        return rightText;
-    }
-
-    public void setRightText(String rightText) {
-        this.rightText = rightText;
-    }
+    private int homeBackgroundColor = 0x4e72b8; // 背景色
+    private ColorStateList homeColorStateList;
+    private float homeAlpha = 1.0f; // 透明度
 
     public void setOnClickListener(CircleNavigationOnClickListener mOnClickListener) {
         this.mOnClickListener = mOnClickListener;
@@ -163,6 +127,16 @@ public class CircleNavigationView extends View {
                     lineWidth = typedArray.getFloat(itemId, lineWidth);
                     LogUtiles.d("lineWidth = "+lineWidth);
                     break;
+
+                case R.styleable.CircleNavigationView_home_background_color: // 获取圆形背景色
+                    homeColorStateList = typedArray.getColorStateList(itemId);
+                    LogUtiles.d("homeColorStateList = "+homeColorStateList.toString());
+                    break;
+
+                case R.styleable.CircleNavigationView_home_alpha: // 获取导航栏透明度
+                    homeAlpha = typedArray.getFloat(itemId, homeAlpha);
+                    LogUtiles.d("homeAlpha = "+homeAlpha);
+                    break;
             }
         }
         upText = typedArray.getString(R.styleable.CircleNavigationView_up_text);
@@ -179,7 +153,7 @@ public class CircleNavigationView extends View {
      * 定义一个初始化方法
      */
     private void init(){
-        setBackgroundColor(Color.TRANSPARENT); // 设置背景色为透明色
+        setBackgroundColor(Color.TRANSPARENT); // 设置View的背景色为透明色，最好不要给用户开放修改入口
 
         // 1、设置绘制圆盘的画笔
         mArcPaint = new Paint();
@@ -187,7 +161,10 @@ public class CircleNavigationView extends View {
         mArcPaint.setDither(true);
 //        mArcPaint.setColor(Color.argb(0xdf, 0x3f, 0x51, 0xb5)); //102b6a 2a5caa 3F51B5 33a3dc
 //        mArcPaint.setColor(Color.argb(0xff, 0x4e, 0x72, 0xb8));
-        mArcPaint.setColor(getResources().getColor(R.color.app_primary));
+        homeBackgroundColor = homeColorStateList.getColorForState(getDrawableState(), homeBackgroundColor);
+        mArcPaint.setColor(homeBackgroundColor); // 设置圆盘背景色
+//        mArcPaint.setColor(ho);
+        mArcPaint.setAlpha((int) (homeAlpha *255)); // 设置圆盘透明度
 
         // 2、设置绘制白线的画笔
         mLinePaint = new Paint();
@@ -195,17 +172,19 @@ public class CircleNavigationView extends View {
         mLinePaint.setColor(Color.WHITE); // 设置画笔颜色为白色
         mLinePaint.setStrokeWidth(lineWidth); //设置线宽
 
-        // 2、设置绘制文本的画笔
+        // 3、设置绘制文本的画笔
         mTextPaint = new Paint();
         mTextPaint.setAntiAlias(true);// 设置画笔的锯齿效果
         mTextPaint.setColor(Color.WHITE); // 设置画笔颜色为白色
         mTextPaint.setTextSize(textSize); //设置线宽
         textHeight = mTextPaint.descent() + mTextPaint.ascent(); // 文本高度 = 文本上下坡高度之和
 
+        // 4、设置绘制中心圆的画笔
         mCenterPaint = new Paint();
         mCenterPaint.setAntiAlias(true);// 设置画笔的锯齿效果
         mCenterPaint.setDither(true);
-        mCenterPaint.setColor(getResources().getColor(R.color.app_primary_dark)); //102b6a 2a5caa 3F51B5
+//        mCenterPaint.setColor(getResources().getColor(R.color.colorPrimary)); //102b6a 2a5caa 3F51B5
+        mCenterPaint.setColor(Color.argb(0xff, 35, 128, 208)); //102b6a 2a5caa 3F51B5 35128208
         mCenterBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_close); // 设置中心的图片
         // 可获得焦点
         setFocusable(true);
@@ -275,14 +254,14 @@ public class CircleNavigationView extends View {
             LogUtiles.d("r = " + r);
 
             canvas.drawCircle(cx, cy, r, mArcPaint);
-            drawLines(canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
+            drawLines(canvas, paddingLeft, paddingRight, paddingTop, paddingBottom); // 绘制交叉直线
 
             drawText(0, 1, upText, canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
             drawText(0, -1, downText, canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
             drawText(-1, 0, leftText, canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
             drawText(1, 0, rightText, canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
 
-            drawCenterBitmap(canvas, paddingLeft, paddingRight, paddingTop, paddingBottom);
+            drawCenterBitmap(canvas, paddingLeft, paddingRight, paddingTop, paddingBottom); // 绘制中间图片
         }
     }
 

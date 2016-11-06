@@ -67,9 +67,10 @@
             cclinView:right_text="搜索"
             cclinView:text_size="12sp"
             cclinView:line_width="2.0"
-            cclinView:angle="0.0"
             cclinView:radius="200dp"
-            cclinView:items="4" />
+            cclinView:items="4"
+            cclinView:home_background_color="#3c8ed7"
+            cclinView:home_alpha="0.9"/>
     </FrameLayout>
 
 
